@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIH MYF Shift - Interactive Visualization</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js - more reliable than Recharts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a);
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+        
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            cursor: pointer;
+        }
+        
+        .nav-btn:hover { background: #334155; }
+        .nav-btn.active {
+            background: #f59e0b;
+            color: #0f172a;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+        
+        canvas { max-height: 400px; }
+    </style>
+</head>
+<body>
+    <div class="p-4 md:p-8">
+        
+        <!-- Header -->
+        <div class="max-w-6xl mx-auto mb-12">
+            <div class="border-l-4 border-amber-500 pl-6 mb-6">
+                <h1 class="text-4xl md:text-6xl font-bold mb-3" style="font-family: 'Space Mono', monospace; line-height: 1.1;">
+                    THE MYF SHIFT
+                </h1>
+                <p class="text-xl md:text-2xl text-amber-500 font-semibold">
+                    NIH's Forward Funding Revolution
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mt-8">
+                <div class="bg-slate-800/50 border border-slate-700 p-6 rounded-lg">
+                    <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">Traditional Model</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><span class="text-red-400 mr-2">●</span>Annual installments</div>
+                        <div><span class="text-red-400 mr-2">●</span>Shutdown vulnerable</div>
+                        <div><span class="text-red-400 mr-2">●</span>Carryover needs approval</div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800/50 border border-emerald-600 p-6 rounded-lg">
+                    <h3 class="text-xs uppercase tracking-wider text-slate-400 mb-2">MYF Model</h3>
+                    <div class="space-y-2 text-sm">
+                        <div><span class="text-emerald-400 mr-2">●</span>5-year upfront payment</div>
+                        <div><span class="text-emerald-400 mr-2">●</span>Shutdown proof</div>
+                        <div><span class="text-emerald-400 mr-2">●</span>Full spending flexibility</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="max-w-6xl mx-auto mb-8 flex flex-wrap gap-2">
+            <button class="nav-btn active" onclick="showSection(0)">📉 Grant Volume Impact</button>
+            <button class="nav-btn" onclick="showSection(1)">💰 Funding Flow</button>
+            <button class="nav-btn" onclick="showSection(2)">⚠️ Discussion Tiers</button>
+            <button class="nav-btn" onclick="showSection(3)">⏰ Annual Reduction</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Section 0: Grant Volume Impact -->
+            <div id="section0" class="section active">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-lg p-8">
+                    <h2 class="text-2xl font-bold mb-2 text-amber-500">Active Grant Reduction</h2>
+                    <p class="text-slate-400 mb-6 text-sm">
+                        Shifting to 50% forward funding could decrease total active grants from 10,000 to 6,200
+                    </p>
+                    
+                    <canvas id="chart0"></canvas>
+                    
+                    <div class="mt-6 grid md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-700">
+                            <div class="text-4xl font-bold text-slate-300">10,000</div>
+                            <div class="text-sm text-slate-400 mt-1">Traditional grants</div>
+                        </div>
+                        <div class="bg-red-950/30 p-4 rounded border border-red-800">
+                            <div class="text-4xl font-bold text-red-400">6,200</div>
+                            <div class="text-sm text-red-300 mt-1">MYF grants (-38%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-950/20 border border-amber-700/50 rounded-lg p-6 mt-6">
+                    <h3 class="font-bold text-amber-500 mb-2">⚠️ Critical Impact on ESIs</h3>
+                    <p class="text-sm text-slate-300">
+                        Early Stage Investigators without bridge funding may struggle to survive 4-year gaps 
+                        between funding cycles, disproportionately affecting new researchers.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Section 1: Funding Flow -->
+            <div id="section1" class="section">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-lg p-8">
+                    <h2 class="text-2xl font-bold mb-2 text-amber-500">Funding Cash Flow Comparison</h2>
+                    <p class="text-slate-400 mb-6 text-sm">
+                        How money flows over a 5-year project period
+                    </p>
+                    
+                    <canvas id="chart1"></canvas>
+
+                    <div class="mt-6 grid md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-600">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-4 h-4 bg-slate-500 rounded"></div>
+                                <h4 class="font-semibold text-slate-300">Incremental Funding</h4>
+                            </div>
+                            <p class="text-xs text-slate-400">
+                                20% of budget released each year. Creates "out-year mortgages" that tie up future budgets.
+                            </p>
+                        </div>
+                        <div class="bg-emerald-950/30 p-4 rounded border border-emerald-700">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-4 h-4 bg-emerald-500 rounded"></div>
+                                <h4 class="font-semibold text-emerald-400">Forward Funding (MYF)</h4>
+                            </div>
+                            <p class="text-xs text-emerald-200">
+                                100% of 5-year budget paid upfront in Year 1. Eliminates future obligations, enables rapid pivots.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Discussion Tiers -->
+            <div id="section2" class="section">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-lg p-8">
+                    <h2 class="text-2xl font-bold mb-2 text-amber-500">New Discussion Tier System</h2>
+                    <p class="text-slate-400 mb-6 text-sm">
+                        Applications divided into thirds based on committee voting
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-emerald-950/30 border border-emerald-700 p-6 rounded-lg">
+                            <div class="text-3xl font-bold text-emerald-400 mb-2">33%</div>
+                            <h4 class="font-semibold text-emerald-300 mb-1">Discussed</h4>
+                            <p class="text-xs text-slate-400">Top third - full study section review</p>
+                        </div>
+                        <div class="bg-orange-950/30 border border-orange-700 p-6 rounded-lg">
+                            <div class="text-3xl font-bold text-orange-400 mb-2">33%</div>
+                            <h4 class="font-semibold text-orange-300 mb-1">Competitive ND</h4>
+                            <p class="text-xs text-slate-400">Still eligible for funding</p>
+                        </div>
+                        <div class="bg-red-950/30 border border-red-700 p-6 rounded-lg">
+                            <div class="text-3xl font-bold text-red-400 mb-2">33%</div>
+                            <h4 class="font-semibold text-red-300 mb-1">Not Competitive</h4>
+                            <p class="text-xs text-slate-400">Not discussed, not funded</p>
+                        </div>
+                    </div>
+
+                    <div style="max-width: 400px; margin: 0 auto;">
+                        <canvas id="chart2"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-orange-950/20 border border-orange-700/50 rounded-lg p-6 mt-6">
+                    <h3 class="font-bold text-orange-500 mb-2">💡 The "Competitive ND" Strategy</h3>
+                    <p class="text-sm text-slate-300 mb-3">
+                        If your grant falls in the middle tier, contact your Program Officer to explain how you'll 
+                        use the lump sum to front-load high-impact equipment or data collection in Year 1.
+                    </p>
+                    <p class="text-xs text-slate-400 italic">
+                        Note: NIH no longer permits paylines - each funding decision must be individually justified.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Section 3: Annual Reduction -->
+            <div id="section3" class="section">
+                <div class="bg-slate-800/30 border border-slate-700 rounded-lg p-8">
+                    <h2 class="text-2xl font-bold mb-2 text-amber-500">The Year-by-Year Impact</h2>
+                    <p class="text-slate-400 mb-6 text-sm">
+                        DrugMonkey's "spherical cow" analysis: Assuming 400 total R01s with 100 expiring annually
+                    </p>
+                    
+                    <canvas id="chart3"></canvas>
+
+                    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">FY2025</div>
+                            <div class="text-2xl font-bold text-red-400">40</div>
+                            <div class="text-xs text-slate-500">vs 100 potential</div>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">FY2026</div>
+                            <div class="text-2xl font-bold text-red-400">72</div>
+                            <div class="text-xs text-slate-500">vs 180 potential</div>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">FY2027</div>
+                            <div class="text-2xl font-bold text-red-400">98</div>
+                            <div class="text-xs text-slate-500">vs 245 potential</div>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 rounded border border-slate-700">
+                            <div class="text-xs text-slate-400 mb-1">FY2028</div>
+                            <div class="text-2xl font-bold text-red-400">118</div>
+                            <div class="text-xs text-slate-500">vs 296 potential</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-red-950/30 border border-red-800 p-6 rounded-lg">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-red-400 mb-2">Payline Collapse</h4>
+                                <div class="text-5xl font-bold text-red-400 mb-2">4th</div>
+                                <p class="text-sm text-slate-300">
+                                    Percentile at NCI (end of FY2025) - down from ~7th percentile
+                                </p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-red-400 mb-2">Success Rate Plunge</h4>
+                                <div class="text-5xl font-bold text-red-400 mb-2">~10%</div>
+                                <p class="text-sm text-slate-300">
+                                    Expected success rate, down from ~20% in recent years
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="max-w-6xl mx-auto mt-12 pt-8 border-t border-slate-700">
+            <p class="text-xs text-slate-500 text-center">
+                Data sources: Former NIGMS Director Jeremy Berg analysis, DrugMonkey analysis, NIH policy documents
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(n) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('section' + n).classList.add('active');
+            document.querySelectorAll('.nav-btn')[n].classList.add('active');
+        }
+
+        // Chart 0: Grant Volume
+        new Chart(document.getElementById('chart0'), {
+            type: 'bar',
+            data: {
+                labels: ['Traditional', 'MYF (50%)'],
+                datasets: [{
+                    label: 'Active Grants',
+                    data: [10000, 6200],
+                    backgroundColor: ['#64748b', '#dc2626'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { backgroundColor: '#1e293b', borderColor: '#475569', borderWidth: 1 }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: '#334155' }
+                    },
+                    x: { 
+                        ticks: { color: '#94a3b8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Chart 1: Funding Flow
+        new Chart(document.getElementById('chart1'), {
+            type: 'line',
+            data: {
+                labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                datasets: [
+                    {
+                        label: 'Incremental',
+                        data: [20, 20, 20, 20, 20],
+                        borderColor: '#64748b',
+                        backgroundColor: 'rgba(100, 116, 139, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'MYF',
+                        data: [100, 0, 0, 0, 0],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        labels: { color: '#cbd5e1' }
+                    },
+                    tooltip: { backgroundColor: '#1e293b', borderColor: '#475569', borderWidth: 1 }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: '#334155' }
+                    },
+                    x: { 
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: '#334155' }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Pie Chart
+        new Chart(document.getElementById('chart2'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Discussed (Top Third)', 'Competitive ND (Middle)', 'Not Competitive (Bottom)'],
+                datasets: [{
+                    data: [33.3, 33.3, 33.3],
+                    backgroundColor: ['#2E7D32', '#F57C00', '#C62828'],
+                    borderWidth: 2,
+                    borderColor: '#1e293b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { color: '#cbd5e1', padding: 15 }
+                    },
+                    tooltip: { backgroundColor: '#1e293b', borderColor: '#475569', borderWidth: 1 }
+                }
+            }
+        });
+
+        // Chart 3: Annual Reduction
+        new Chart(document.getElementById('chart3'), {
+            type: 'bar',
+            data: {
+                labels: ['FY2025', 'FY2026', 'FY2027', 'FY2028'],
+                datasets: [
+                    {
+                        label: 'Potential (if no MYF)',
+                        data: [100, 180, 245, 296],
+                        backgroundColor: 'rgba(71, 85, 105, 0.5)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Actual Awards',
+                        data: [40, 72, 98, 118],
+                        backgroundColor: '#dc2626',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { 
+                        labels: { color: '#cbd5e1' }
+                    },
+                    tooltip: { backgroundColor: '#1e293b', borderColor: '#475569', borderWidth: 1 }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: '#334155' }
+                    },
+                    x: { 
+                        ticks: { color: '#94a3b8' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        console.log('All charts loaded successfully!');
+    </script>
+</body>
+</html>
